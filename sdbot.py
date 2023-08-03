@@ -1,6 +1,7 @@
 import os
-import json
+import io
 import base64
+import requests
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -42,7 +43,7 @@ async def draw(ctx, *, message: str):
         "hr_prompt": None,
         "hr_negative_prompt": None,
         "prompt": message,
-        "styles": [None],
+        "styles": [""],
         "seed": -1,
         "subseed": -1,
         "subseed_strength": 0,
@@ -51,7 +52,7 @@ async def draw(ctx, *, message: str):
         "sampler_name": "UniPC",
         "batch_size": 1,
         "n_iter": 1,
-        "steps": 20,
+        "steps": 16,
         "cfg_scale": 7,
         "width": 512,
         "height": 512,
@@ -75,7 +76,13 @@ async def draw(ctx, *, message: str):
         "save_images": False,
         "alwayson_scripts": {}
         }
-    print(f"{send_data['prompt']}, og message is {message}")
+
+    post_response = requests.post(url, json=send_data)
+    post_response_json = post_response.json()
+    img_raw = post_response_json["images"][0]
+    img = base64.b64decode(img_raw)
+    file=discord.File(io.BytesIO(img),filename="img.png")
+    await ctx.send(file=file)
 
 @bot.event
 async def on_message(msg):
