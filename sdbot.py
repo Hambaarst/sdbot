@@ -60,7 +60,7 @@ async def draw(ctx, *, message: str):
         "tiling": False,
         "do_not_save_samples": False,
         "do_not_save_grid": False,
-        "negative_prompt": "easynegative",
+        "negative_prompt": "easynegative, nsfw, nudity, naked, no clothes, erotic, lewd, porn",
         "eta": 0,
         "s_min_uncond": 0,
         "s_churn": 0,
@@ -74,7 +74,9 @@ async def draw(ctx, *, message: str):
         "script_name": None,
         "send_images": True,
         "save_images": False,
-        "alwayson_scripts": {}
+        "alwayson_scripts": {},
+        "filter_nsfw": True,
+        "CLIP_stop_at_last_layers": 2
         }
 
     post_response = requests.post(url, json=send_data)
@@ -83,6 +85,67 @@ async def draw(ctx, *, message: str):
     img = base64.b64decode(img_raw)
     file=discord.File(io.BytesIO(img),filename="img.png")
     await ctx.send(file=file)
+
+@bot.command()
+async def draw4(ctx, *, message: str):
+    
+    send_data = {
+        "enable_hr": False,
+        "denoising_strength": 0,
+        "firstphase_width": 0,
+        "firstphase_height": 0,
+        "hr_scale": 2,
+        "hr_upscaler": None,
+        "hr_second_pass_steps": 0,
+        "hr_resize_x": 0,
+        "hr_resize_y": 0,
+        "hr_sampler_name": None,
+        "hr_prompt": None,
+        "hr_negative_prompt": None,
+        "prompt": message,
+        "styles": [""],
+        "seed": -1,
+        "subseed": -1,
+        "subseed_strength": 0,
+        "seed_resize_from_h": -1,
+        "seed_resize_from_w": -1,
+        "sampler_name": "UniPC",
+        "batch_size": 4,
+        "n_iter": 1,
+        "steps": 25,
+        "cfg_scale": 7,
+        "width": 512,
+        "height": 512,
+        "restore_faces": False,
+        "tiling": False,
+        "do_not_save_samples": False,
+        "do_not_save_grid": False,
+        "negative_prompt": "easynegative, nsfw, nudity, naked, no clothes, erotic, lewd, porn",
+        "eta": 0,
+        "s_min_uncond": 0,
+        "s_churn": 0,
+        "s_tmax": 0,
+        "s_tmin": 0,
+        "s_noise": 1,
+        "override_settings": {},
+        "override_settings_restore_afterwards": True,
+        "script_args": [],
+        "sampler_index": "UniPC",
+        "script_name": None,
+        "send_images": True,
+        "save_images": False,
+        "alwayson_scripts": {},
+        "filter_nsfw": True,
+        "CLIP_stop_at_last_layers": 2
+        }
+
+    post_response = requests.post(url, json=send_data)
+    post_response_json = post_response.json()
+    files: list[discord.File] = []
+    for image in post_response_json["images"]:
+        img = base64.b64decode(image)
+        files.append(discord.File(io.BytesIO(img),filename="img.png"))
+    await ctx.send(files=files)
 
 @bot.event
 async def on_message(msg):
