@@ -56,7 +56,7 @@ async def draw(ctx, *, message: str):
         "cfg_scale": 7,
         "width": 512,
         "height": 512,
-        "restore_faces": False,
+        "restore_faces": True,
         "tiling": False,
         "do_not_save_samples": False,
         "do_not_save_grid": False,
@@ -75,8 +75,7 @@ async def draw(ctx, *, message: str):
         "send_images": True,
         "save_images": False,
         "alwayson_scripts": {},
-        "filter_nsfw": True,
-        "CLIP_stop_at_last_layers": 2
+        "filter_nsfw": True
         }
 
     post_response = requests.post(url, json=send_data)
@@ -116,7 +115,7 @@ async def draw4(ctx, *, message: str):
         "cfg_scale": 7,
         "width": 512,
         "height": 512,
-        "restore_faces": False,
+        "restore_faces": True,
         "tiling": False,
         "do_not_save_samples": False,
         "do_not_save_grid": False,
@@ -134,9 +133,7 @@ async def draw4(ctx, *, message: str):
         "script_name": None,
         "send_images": True,
         "save_images": False,
-        "alwayson_scripts": {},
-        "filter_nsfw": True,
-        "CLIP_stop_at_last_layers": 2
+        "alwayson_scripts": {}
         }
 
     post_response = requests.post(url, json=send_data)
