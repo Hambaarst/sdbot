@@ -52,15 +52,15 @@ async def draw(ctx, *, message: str):
         "sampler_name": "UniPC",
         "batch_size": 1,
         "n_iter": 1,
-        "steps": 25,
+        "steps": 35,
         "cfg_scale": 7,
         "width": 512,
         "height": 512,
-        "restore_faces": True,
+        "restore_faces": False,
         "tiling": False,
         "do_not_save_samples": False,
         "do_not_save_grid": False,
-        "negative_prompt": "easynegative, nsfw, nudity, naked, no clothes, erotic, lewd, porn",
+        "negative_prompt": "BadDream UnrealisticDream FastNegativeV2",
         "eta": 0,
         "s_min_uncond": 0,
         "s_churn": 0,
@@ -74,11 +74,11 @@ async def draw(ctx, *, message: str):
         "script_name": None,
         "send_images": True,
         "save_images": False,
-        "alwayson_scripts": {},
-        "filter_nsfw": True
+        "alwayson_scripts": {}
         }
 
     post_response = requests.post(url, json=send_data)
+    print(post_response)
     post_response_json = post_response.json()
     img_raw = post_response_json["images"][0]
     img = base64.b64decode(img_raw)
@@ -111,15 +111,15 @@ async def draw4(ctx, *, message: str):
         "sampler_name": "UniPC",
         "batch_size": 4,
         "n_iter": 1,
-        "steps": 25,
+        "steps": 35,
         "cfg_scale": 7,
         "width": 512,
         "height": 512,
-        "restore_faces": True,
+        "restore_faces": False,
         "tiling": False,
         "do_not_save_samples": False,
         "do_not_save_grid": False,
-        "negative_prompt": "easynegative, nsfw, nudity, naked, no clothes, erotic, lewd, porn",
+        "negative_prompt": "BadDream UnrealisticDream FastNegativeV2",
         "eta": 0,
         "s_min_uncond": 0,
         "s_churn": 0,
