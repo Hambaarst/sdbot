@@ -27,8 +27,17 @@ async def hello(ctx):
     await ctx.send(message)
 
 @bot.command()
-async def draw(ctx, arg1, arg2):
-    
+async def test(ctx, *args):
+    print(args)
+    print(args[1])
+
+@bot.command()
+async def draw(ctx, *args):
+    if len(args) >= 2:
+        negative = args[1]
+    else:
+        negative = ""
+
     send_data = {
         "enable_hr": False,
         "denoising_strength": 0,
@@ -42,7 +51,7 @@ async def draw(ctx, arg1, arg2):
         "hr_sampler_name": None,
         "hr_prompt": None,
         "hr_negative_prompt": None,
-        "prompt": arg1,
+        "prompt": args[0],
         "styles": [""],
         "seed": -1,
         "subseed": -1,
@@ -56,11 +65,11 @@ async def draw(ctx, arg1, arg2):
         "cfg_scale": 7,
         "width": 512,
         "height": 512,
-        "restore_faces": False,
+        "restore_faces": True,
         "tiling": False,
         "do_not_save_samples": False,
         "do_not_save_grid": False,
-        "negative_prompt": "BadDream FastNegativeV2 "+ arg2,
+        "negative_prompt": "BadDream FastNegativeV2 " + negative,
         "eta": 0,
         "s_min_uncond": 0,
         "s_churn": 0,
@@ -78,16 +87,20 @@ async def draw(ctx, arg1, arg2):
         }
 
     post_response = requests.post(url, json=send_data)
-    print(post_response)
     post_response_json = post_response.json()
-    img_raw = post_response_json["images"][0]
-    img = base64.b64decode(img_raw)
-    file=discord.File(io.BytesIO(img),filename="img.png")
-    await ctx.send(file=file)
+    files: list[discord.File] = []
+    for image in post_response_json["images"]:
+        img = base64.b64decode(image)
+        files.append(discord.File(io.BytesIO(img),filename="img.png"))
+    await ctx.send(files=files)
 
 @bot.command()
-async def draw4(ctx, arg1, arg2):
-    
+async def draw4(ctx, *args):
+    if len(args) >= 2:
+        negative = args[1]
+    else:
+        negative = ""
+
     send_data = {
         "enable_hr": False,
         "denoising_strength": 0,
@@ -101,7 +114,7 @@ async def draw4(ctx, arg1, arg2):
         "hr_sampler_name": None,
         "hr_prompt": None,
         "hr_negative_prompt": None,
-        "prompt": arg1 ,
+        "prompt": args[0],
         "styles": [""],
         "seed": -1,
         "subseed": -1,
@@ -115,11 +128,11 @@ async def draw4(ctx, arg1, arg2):
         "cfg_scale": 7,
         "width": 512,
         "height": 512,
-        "restore_faces": False,
+        "restore_faces": True,
         "tiling": False,
         "do_not_save_samples": False,
         "do_not_save_grid": False,
-        "negative_prompt": "BadDream FastNegativeV2 " + arg2,
+        "negative_prompt": "BadDream FastNegativeV2 " + negative,
         "eta": 0,
         "s_min_uncond": 0,
         "s_churn": 0,
@@ -135,6 +148,7 @@ async def draw4(ctx, arg1, arg2):
         "save_images": False,
         "alwayson_scripts": {}
         }
+
 
     post_response = requests.post(url, json=send_data)
     post_response_json = post_response.json()
