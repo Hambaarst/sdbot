@@ -27,7 +27,7 @@ async def hello(ctx):
     await ctx.send(message)
 
 @bot.command()
-async def draw(ctx, *, message: str):
+async def draw(ctx, arg1, arg2):
     
     send_data = {
         "enable_hr": False,
@@ -42,7 +42,7 @@ async def draw(ctx, *, message: str):
         "hr_sampler_name": None,
         "hr_prompt": None,
         "hr_negative_prompt": None,
-        "prompt": message,
+        "prompt": arg1,
         "styles": [""],
         "seed": -1,
         "subseed": -1,
@@ -60,7 +60,7 @@ async def draw(ctx, *, message: str):
         "tiling": False,
         "do_not_save_samples": False,
         "do_not_save_grid": False,
-        "negative_prompt": "BadDream UnrealisticDream FastNegativeV2",
+        "negative_prompt": "BadDream FastNegativeV2 "+ arg2,
         "eta": 0,
         "s_min_uncond": 0,
         "s_churn": 0,
@@ -86,7 +86,7 @@ async def draw(ctx, *, message: str):
     await ctx.send(file=file)
 
 @bot.command()
-async def draw4(ctx, *, message: str):
+async def draw4(ctx, arg1, arg2):
     
     send_data = {
         "enable_hr": False,
@@ -101,7 +101,7 @@ async def draw4(ctx, *, message: str):
         "hr_sampler_name": None,
         "hr_prompt": None,
         "hr_negative_prompt": None,
-        "prompt": message,
+        "prompt": arg1 ,
         "styles": [""],
         "seed": -1,
         "subseed": -1,
@@ -119,7 +119,7 @@ async def draw4(ctx, *, message: str):
         "tiling": False,
         "do_not_save_samples": False,
         "do_not_save_grid": False,
-        "negative_prompt": "BadDream UnrealisticDream FastNegativeV2",
+        "negative_prompt": "BadDream FastNegativeV2 " + arg2,
         "eta": 0,
         "s_min_uncond": 0,
         "s_churn": 0,
