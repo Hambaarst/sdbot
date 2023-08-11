@@ -3,6 +3,7 @@ import io
 import base64
 import requests
 import discord
+from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -20,6 +21,11 @@ bot = commands.Bot(command_prefix='¤', intents=intents)
 
 @bot.event
 async def on_ready():
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} command(s)")
+    except Exception as e:
+        print(e)
     print(f'{bot.user.name} has connected to Discord!')
 
 @bot.command()
@@ -76,6 +82,29 @@ send_data = {
         "alwayson_scripts": {}
         }
 
+
+@bot.tree.command(name="draw", description="Send a prompt to ai to generate your art.")
+@app_commands.describe(prompt="your prompt here", negatives="your negatives here", amount="how many pictures")
+async def draw(interaction: discord.Interaction, prompt: str = "", negatives: str = "", amount: int = 1):
+    await interaction.response.defer(thinking=True)
+    if amount > 4:
+        amount = 4
+    send_data["prompt"] = prompt
+    send_data["batch_size"] = amount
+    send_data["negative_prompt"] = "BadDream FastNegativeV2 " + negatives
+
+    print(send_data["prompt"])
+
+    post_response = requests.post(urlt2i, json=send_data)
+    post_response_json = post_response.json()
+    files: list[discord.File] = []
+    for image in post_response_json["images"]:
+        img = base64.b64decode(image)
+        files.append(discord.File(io.BytesIO(img),filename="img.png"))
+    
+    await interaction.followup.send(files=files)
+
+
 @bot.command()
 async def draw(ctx, *args):
     if len(args) >= 2:
@@ -83,6 +112,7 @@ async def draw(ctx, *args):
     else:
         negative = ""
 
+    send_data["prompt"] = args[0]
     send_data["batch_size"] = 1
     send_data["negative_prompt"] = "BadDream FastNegativeV2 " + negative
 
@@ -101,6 +131,7 @@ async def draw4(ctx, *args):
     else:
         negative = ""
 
+    send_data["prompt"] = args[0]
     send_data["batch_size"] = 4
     send_data["negative_prompt"] = "BadDream FastNegativeV2 " + negative
     
@@ -121,6 +152,5 @@ async def on_message(msg):
         await msg.channel.send("pepega even")
 
     await bot.process_commands(msg)
-
 
 bot.run(TOKEN)
