@@ -1,6 +1,7 @@
 import os
 import io
 import base64
+from typing import Optional
 import requests
 import discord
 from discord import app_commands
@@ -31,11 +32,6 @@ async def on_ready():
 @bot.command()
 async def hello(ctx):
     await ctx.send(message)
-
-@bot.command()
-async def test(ctx, *args):
-    print(args)
-    print(args[1])
 
 send_data = {
         "enable_hr": False,
@@ -82,9 +78,22 @@ send_data = {
         "alwayson_scripts": {}
         }
 
+class TestButton(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+    
+    @discord.ui.button(label="Test", style=discord.ButtonStyle.primary)
+    async def test(self, interaction, button):
+        await interaction.response.defer()
+        await interaction.channel.send(content="beep!!")
+        
+
+@bot.tree.command(name="buttonmenu")
+async def buttonmenu(interaction: discord.Interaction):
+    await interaction.response.send_message(content="buttons!", view=TestButton())
 
 @bot.tree.command(name="draw", description="Send a prompt to ai to generate your art.")
-@app_commands.describe(prompt="your prompt here", negatives="your negatives here", amount="how many pictures")
+@app_commands.describe(prompt="your prompt here", negatives="your negatives here", amount="how many pictures, max 4")
 async def draw(interaction: discord.Interaction, prompt: str = "", negatives: str = "", amount: int = 1):
     await interaction.response.defer(thinking=True)
     if amount > 4:
@@ -103,7 +112,6 @@ async def draw(interaction: discord.Interaction, prompt: str = "", negatives: st
         files.append(discord.File(io.BytesIO(img),filename="img.png"))
     
     await interaction.followup.send(files=files)
-
 
 @bot.command()
 async def draw(ctx, *args):
