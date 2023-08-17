@@ -79,15 +79,14 @@ send_data = {
         }
 
 class TestButton(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
+    def __init__(self, *, timeout: float | None = 180):
+        super().__init__(timeout=timeout)
     
     @discord.ui.button(label="Test", style=discord.ButtonStyle.primary)
     async def test(self, interaction, button):
         await interaction.response.defer()
         await interaction.channel.send(content="beep!!")
         
-
 @bot.tree.command(name="buttonmenu")
 async def buttonmenu(interaction: discord.Interaction):
     await interaction.response.send_message(content="buttons!", view=TestButton())
@@ -107,9 +106,11 @@ async def draw(interaction: discord.Interaction, prompt: str = "", negatives: st
     post_response = requests.post(urlt2i, json=send_data)
     post_response_json = post_response.json()
     files: list[discord.File] = []
+    i: int = 1
     for image in post_response_json["images"]:
         img = base64.b64decode(image)
         files.append(discord.File(io.BytesIO(img),filename="img.png"))
+        i = i + 1
     
     await interaction.followup.send(files=files)
 
