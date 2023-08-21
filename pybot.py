@@ -66,14 +66,23 @@ async def on_ready():
 async def send(ctx, arg1):
     print(arg1)
 
-@bot.command(description="draw something")
-async def draw(ctx, prompt: str = "", negatives: str = "", amount: int = 1):
-    await ctx.response.defer(thinking=True)
+class MyView(discord.ui.View):
+    @discord.ui.button(label="Click me!", style=discord.ButtonStyle.blurple)
+    async def button_callback(self, button, interaction: discord.Interaction):
+        await interaction.response.send_message("you pressed button")
+
+@bot.slash_command(description="creates a button")
+async def button(ctx: discord.Interaction):
+    await ctx.response.send_message("this is a button", view=MyView())
+
+@bot.slash_command(description="draw something")
+async def draw(ctx: discord.Interaction, prompt: str = "", negatives: str = "", amount: int = 1):
+    await ctx.response.defer(invisible=False)
     if amount > 4:
         amount = 4
     send_data["prompt"] = prompt
     send_data["batch_size"] = amount
-    send_data["negative_prompt"] = "BadDream FastNegativeV2 " + negatives
+    send_data["negative_prompt"] = "BadDream " + negatives
 
     post_response = requests.post(urlt2i, json=send_data)
     post_response_json = post_response.json()
