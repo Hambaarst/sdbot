@@ -3,7 +3,9 @@ import io
 import discord
 import os
 from dotenv import load_dotenv
+from discord.ext import commands
 import requests
+from discord.ui import Button, View
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -83,16 +85,32 @@ async def draw(ctx: discord.Interaction, prompt: str = "", negatives: str = "", 
     send_data["prompt"] = prompt
     send_data["batch_size"] = amount
     send_data["negative_prompt"] = "BadDream " + negatives
-
+    
     post_response = requests.post(urlt2i, json=send_data)
     post_response_json = post_response.json()
     files: list[discord.File] = []
     i: int = 1
+    view = View()
     for image in post_response_json["images"]:
         img = base64.b64decode(image)
-        files.append(discord.File(io.BytesIO(img),filename="img.png"))
+        files.append(discord.File(io.BytesIO(img),filename=f"img{i}.png"))
+        button = Button(label=f"image {i}", style=discord.ButtonStyle.blurple)
+        view.add_item(button)
         i = i + 1
+
+    await ctx.followup.send(files=files, view=view)
+
+async def img2img(ctx: discord.Interaction, image, send_data):
+    await ctx.response.defer(invisible=False)
+
+
+
+@bot.event
+async def on_message(msg):
+    if msg.author == bot.user:
+        return
     
-    await ctx.followup.send(files=files)
+    if "poggers" == msg.content.lower():
+        await msg.channel.send("pepega even")
 
 bot.run(TOKEN)
