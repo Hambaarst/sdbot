@@ -32,8 +32,8 @@ i2idata = {
   "denoising_strength": 0.48,
   "prompt": "",
   "sampler_name": "DPM++ SDE Karras",
-  "batch_size": 1,
-  "n_iter": 4,
+  "batch_size": 4,
+  "n_iter": 1,
   "steps": 35,
   "cfg_scale": 7,
   "width": 512,
@@ -62,11 +62,11 @@ class MyView(discord.ui.View):
     async def button_callback(self, button, interaction: discord.Interaction):
         await interaction.response.send_message("you pressed button")
 
-@bot.slash_command(description="creates a button")
+@bot.command(description="creates a button")
 async def button(ctx: discord.Interaction):
     await ctx.response.send_message("this is a button", view=MyView())
 
-@bot.slash_command(description="draw something")
+@bot.command(description="draw something")
 async def draw(ctx: discord.Interaction, prompt: str = "", negatives: str = "", amount: int = 1):
     await ctx.response.defer(invisible=False)
     if amount > 4:
@@ -83,7 +83,7 @@ async def draw(ctx: discord.Interaction, prompt: str = "", negatives: str = "", 
     for image in post_response_json["images"]:
         img = base64.b64decode(image)
         files.append(discord.File(io.BytesIO(img),filename=f"img{i}.png"))
-        button = ImageButton(image=img, send_data=send_data, label=f"image {i}", style=discord.ButtonStyle.blurple)
+        button = ImageButton(image=img, send_data=send_data, label=f"image {i}", style=discord.ButtonStyle.gray)
         view.add_item(button)
         i = i + 1
 
@@ -116,9 +116,8 @@ class ImageButton(discord.ui.Button):
         self.image = image
         self.send_data = send_data
 
-    async def callback(self, interaction: discord.Interaction):
-        
-        await interaction.response.defer()
+    async def callback(self, interaction):
+        await interaction.response.defer(invisible=False)
         image_data = base64.b64encode(self.image).decode("utf-8")
         
         i2idata["init_images"]=['data:image/png;base64,' + image_data]
@@ -136,8 +135,14 @@ class ImageButton(discord.ui.Button):
             button = ImageButton(image=img, send_data=send_data, label=f"image {i}", style=discord.ButtonStyle.blurple)
             view.add_item(button)
             i = i + 1
+        
+        await interaction.followup.edit_message(message_id=interaction.message.id, files=files, view=view)
 
-        await interaction.followup.send(files=files, view=view)
+class MyView(discord.ui.View):
+    @discord.ui.button(style=discord.ButtonStyle.grey)
+    async def button_callback(self, button, interaction: discord.Interaction):
+        await interaction.response.send_message("you pressed button")
+
 
 @bot.event
 async def on_message(msg):
