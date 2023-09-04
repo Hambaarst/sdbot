@@ -14,6 +14,7 @@ intents = discord.Intents.default()
 intents.message_content=True
 urlt2i = "http://127.0.0.1:7860/sdapi/v1/txt2img"
 urli2i = "http://127.0.0.1:7860/sdapi/v1/img2img"
+
 send_data = {
         "sampler_name": "DPM++ SDE Karras",
         "n_iter": 1,
@@ -61,15 +62,12 @@ upscaledata={
     "sampler_index": "DPM++ SDE Karras",
     "send_images": True
 }
+
 bot = discord.Bot(intents=intents)
 
 @bot.event
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
-
-@bot.command(description="sends a test arg to the bot")
-async def send(ctx, arg1):
-    print(arg1)
 
 class MyView(discord.ui.View):
     @discord.ui.button(label="Click me!", style=discord.ButtonStyle.blurple)
@@ -103,7 +101,7 @@ async def draw(ctx: discord.Interaction, prompt: str = "", negatives: str = "", 
         view.add_item(button2)
         i = i + 1
 
-    await ctx.followup.send(files=files, view=view)
+    await ctx.followup.send(files=files, view=view, ephemeral=True)
 
 async def img2img(image, send_data):
     # await ctx.response.defer(invisible=False)
@@ -154,8 +152,7 @@ class UpscaleButton(discord.ui.Button):
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer(invisible=False)
         response = await upscale(self.image)
-        await interaction.followup.edit_message(files=response[0], view=response[1], message_id=interaction.message.id)
-        
+        await interaction.followup.send(files=response[0], view=response[1], ephemeral=True)
 
 #button class that takes image and send_data and creates variations of images and buttons to create more variations
 class ImageButton(discord.ui.Button):
@@ -171,8 +168,8 @@ class ImageButton(discord.ui.Button):
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer(invisible=False)
         response = await img2img(self.image, self.send_data)
-        await interaction.followup.edit_message(files=response[0], view=response[1], message_id=interaction.message.id)
-        
+        await interaction.followup.send(files=response[0], view=response[1], ephemeral=True)
+
 class MyView(discord.ui.View):
     @discord.ui.button(style=discord.ButtonStyle.grey)
     async def button_callback(self, button, interaction: discord.Interaction):
