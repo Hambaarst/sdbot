@@ -70,18 +70,6 @@ bot = discord.Bot(intents=intents)
 async def on_ready():
     print(f"{bot.user.name} has connected to Discord!")
 
-
-class MyView(discord.ui.View):
-    @discord.ui.button(label="Click me!", style=discord.ButtonStyle.blurple)
-    async def button_callback(self, button, interaction: discord.Interaction):
-        await interaction.response.send_message("you pressed button")
-
-
-@bot.command(description="creates a button")
-async def button(ctx: discord.Interaction):
-    await ctx.response.send_message("this is a button", view=MyView())
-
-
 @bot.command(description="draw something")
 async def draw(
     ctx: discord.Interaction, prompt: str = "", negatives: str = "", amount: int = 1
@@ -119,9 +107,6 @@ async def draw(
 
 
 async def img2img(image, send_data):
-    # await ctx.response.defer(invisible=False)
-
-    # image_data = base64.b64encode(image).decode("utf-8")
     i2idata["init_images"] = ["data:image/png;base64," + image]
     i2idata["prompt"] = send_data["prompt"]
     i2idata["negative_prompt"] = send_data["negative_prompt"]
@@ -151,8 +136,6 @@ async def img2img(image, send_data):
 
 # function that takes image and uses img2img api to upscale said image
 async def upscale(image):
-    # await ctx.response.defer(invisible=False)
-    # image_data = base64.b64encode(image).decode("utf-8")
     upscaledata["init_images"] = ["data:image/png;base64," + image]
     post_response = requests.post(urli2i, json=upscaledata)
     post_response_json = post_response.json()
@@ -193,21 +176,5 @@ class ImageButton(discord.ui.Button):
         await interaction.followup.send(
             files=response[0], view=response[1], ephemeral=True
         )
-
-
-class MyView(discord.ui.View):
-    @discord.ui.button(style=discord.ButtonStyle.grey)
-    async def button_callback(self, button, interaction: discord.Interaction):
-        await interaction.response.send_message("you pressed button")
-
-
-@bot.event
-async def on_message(msg):
-    if msg.author == bot.user:
-        return
-
-    if "poggers" == msg.content.lower():
-        await msg.channel.send("pepega even")
-
 
 bot.run(TOKEN)
