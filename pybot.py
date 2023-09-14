@@ -13,6 +13,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 urlt2i = "http://127.0.0.1:7860/sdapi/v1/txt2img"
 urli2i = "http://127.0.0.1:7860/sdapi/v1/img2img"
+bot = discord.Bot(intents=intents)
 
 send_data = {
     "sampler_name": "DPM++ SDE Karras",
@@ -62,12 +63,11 @@ upscaledata = {
     "send_images": True,
 }
 
-bot = discord.Bot(intents=intents)
-
 
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} has connected to Discord!")
+
 
 @bot.command(description="draw something")
 async def draw(
@@ -76,6 +76,8 @@ async def draw(
     await ctx.response.defer(invisible=False)
     if amount > 4:
         amount = 4
+    if amount < 1:
+        amount = 1
     send_data["prompt"] = prompt
     send_data["batch_size"] = amount
     send_data["negative_prompt"] = "BadDream " + negatives
@@ -175,5 +177,6 @@ class ImageButton(discord.ui.Button):
         await interaction.followup.send(
             files=response[0], view=response[1], ephemeral=True
         )
+
 
 bot.run(TOKEN)
